@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  
+  # Cribl leader
+  cribl:
+    image: cribl/cribl:latest
+    container_name: cribl_leader
+    environment:
+      - CRIBL_DIST_MODE=master
+      - CRIBL_DIST_MASTER_URL=tcp://cribl_leader@cribl:4200
+      - CRIBL_VOLUME_DIR=/opt/cribl/config-volume
+    ports:
+      - "9000:9000"
+    volumes:
+      - cribl:/opt/cribl/local
+      - ./cribl-config:/opt/cribl/config-volume
+      - cribl_groups:/opt/cribl/groups
+  
+  # Cribl worker
+  cribl_worker:
+    image: cribl/cribl:latest
+    container_name: cribl_worker
+    environment:
+      - CRIBL_DIST_MODE=worker
+      - CRIBL_DIST_MASTER_URL=tcp://cribl_leader@cribl:4200
+    ports:
+      - "9998:9998"
+      - "8088:8088"
+      - "10090:10090"
+      - "1514:1514"
+      - "1514:1514/udp"
+    deploy:
+        resources:
+            limits:
+              cpus: '3.00'
+              memory: 2048M
+  
+  # Splunk Enterprise
+  splunk: 
+    image: splunk/splunk:latest
+    container_name: splunk_server
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_HEC_TOKEN=00000000-0000-0000-0000-0000000000000
+      - SPLUNK_PASSWORD=changeme
+    ports:
+      - "18000:8000"
+      - "8089:8089"
+      - "9997:9997"
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8000' ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ./splunk.yml:/tmp/defaults/default.yml
+      - /opt/splunk/var
+      - /opt/splunk/etc
+
+volumes:
+  cribl:
+  cribl_groups:
+  splunk-var:
+  splunk-etc:
