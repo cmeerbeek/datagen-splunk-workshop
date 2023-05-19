@@ -8,3 +8,8 @@ splunk:
             homePath: $SPLUNK_DB/webserver-logs/db
             maxTotalDataSizeMB: 512000
             thawedPath: $SPLUNK_DB/webserver-logs/thaweddb
+      inputs:
+        directory: /opt/splunk/etc/apps/splunk_httpinput/local
+        content:
+          http:
+            enableSSL: 0
