@@ -1,0 +1,12 @@
+inputs:
+  SourcesApacheCommon:
+    disabled: false
+    sendToRoutes: false
+    pqEnabled: false
+    streamtags: []
+    samples:
+      - eventsPerSec: 2
+        sample: apache_common
+    type: datagen
+    connections:
+      - output: OutputsSplunkHEC
